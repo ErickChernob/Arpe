@@ -1,0 +1,29 @@
+/*
+ * Custom replacement for Webflow's legacy IX1 `data-ix` triggers
+ * (fade-in-on-load / -2 / -3 / fade-in-on-scroll), driven by js/animations.js.
+ *
+ * Hidden state is scoped to `.w-mod-js` (added by the inline touch-detection
+ * script already present in <head>) so that visitors with JavaScript
+ * disabled always see full, visible content -- the hidden/animated state
+ * only ever applies when JS is confirmed to be running, same as it did
+ * under Webflow's own runtime.
+ */
+.w-mod-js [data-ix^="fade-in-on-load"],
+.w-mod-js [data-ix="fade-in-on-scroll"] {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+.w-mod-js [data-ix^="fade-in-on-load"].ix-visible,
+.w-mod-js [data-ix="fade-in-on-scroll"].ix-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .w-mod-js [data-ix^="fade-in-on-load"],
+  .w-mod-js [data-ix="fade-in-on-scroll"] {
+    transition: none;
+  }
+}

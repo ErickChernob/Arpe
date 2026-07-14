@@ -1,0 +1,61 @@
+# ARPE static site - Apache configuration
+# Safe to place at the web root (public_html) alongside index.html.
+
+# ------------------------------------------------------------------
+# Custom error document
+# ------------------------------------------------------------------
+ErrorDocument 404 /404.html
+
+# ------------------------------------------------------------------
+# Prevent directory listing
+# ------------------------------------------------------------------
+Options -Indexes
+
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+
+  # ----------------------------------------------------------------
+  # Force HTTPS
+  # ----------------------------------------------------------------
+  RewriteCond %{HTTPS} off
+  RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+  # ----------------------------------------------------------------
+  # Force non-www (matches the canonical/OG domain used throughout
+  # this site: https://arpesa.com.mx/). Remove this block if the
+  # client prefers the www subdomain instead.
+  # ----------------------------------------------------------------
+  RewriteCond %{HTTP_HOST} ^www\.arpesa\.com\.mx$ [NC]
+  RewriteRule ^ https://arpesa.com.mx%{REQUEST_URI} [L,R=301]
+
+  # ----------------------------------------------------------------
+  # Optional clean URLs: allow /nosotros to resolve to /nosotros.html
+  # without changing any existing .html links or the canonical tags
+  # (which still point at the .html URLs). Purely additive/optional.
+  # ----------------------------------------------------------------
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME}\.html -f
+  RewriteRule ^([^.]+)$ $1.html [NC,L]
+
+  # ----------------------------------------------------------------
+  # Legacy Webflow path redirects: add 301s here if the client
+  # identifies old inbound links that used a different URL structure
+  # (e.g. a Webflow staging subdomain). None were found in this
+  # export, so none are hardcoded. Example:
+  # RewriteRule ^old-page$ /new-page.html [R=301,L]
+  # ----------------------------------------------------------------
+</IfModule>
+
+# ------------------------------------------------------------------
+# Basic static asset caching (safe defaults; adjust as needed)
+# ------------------------------------------------------------------
+<IfModule mod_expires.c>
+  ExpiresActive On
+  ExpiresByType image/jpeg "access plus 1 month"
+  ExpiresByType image/png "access plus 1 month"
+  ExpiresByType image/svg+xml "access plus 1 month"
+  ExpiresByType text/css "access plus 1 week"
+  ExpiresByType application/javascript "access plus 1 week"
+  ExpiresByType font/woff2 "access plus 1 month"
+</IfModule>
